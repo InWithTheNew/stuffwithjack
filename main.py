@@ -21,6 +21,8 @@ def get_animal():
         animal = Cat(name)
     elif animal_type.lower() == 'cow':
         animal = Cow(name)
+    elif animal_type.lower() == 'gerbil':
+        animal = Gerbil(name)
     else:
         return jsonify({'error': 'Animal type not supported'}), 400
     

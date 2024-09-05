@@ -19,6 +19,8 @@ def get_animal():
         animal = Dog(name)
     elif animal_type.lower() == 'cat':
         animal = Cat(name)
+    elif animal_type.lower() == 'cow':
+        animal = Cow(name)
     else:
         return jsonify({'error': 'Animal type not supported'}), 400
     
@@ -31,7 +33,7 @@ def get_animal():
 
 @app.route('/get_random_animal', methods=['GET'])
 def get_random_animal():
-    animals = [Dog('Rex'), Cat('Whiskers'), Gerbil('Gerry'), Cow('Cooh'), Pig('Porky')]
+    animals = [Dog('Rex'), Cat('Whiskers'), Gerbil('Gerry'), Cow('Cody'), Pig('Porky')]
     animal = random.choice(animals)
     
     return jsonify({

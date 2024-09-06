@@ -52,6 +52,9 @@ jobs:
         echo "::set-output name=sha::$(git rev-parse --short HEAD)"
         echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
 
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
     - name: Install Helm
       run: |
         curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
@@ -89,6 +92,9 @@ jobs:
       run: |
         echo "::set-output name=sha::$(git rev-parse --short HEAD)"
         echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+
+    - name: Checkout repository
+      uses: actions/checkout@v2
         
     - name: Install Helm
       run: |

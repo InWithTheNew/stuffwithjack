@@ -1,0 +1,131 @@
+name: Build Docker Container
+
+on:
+  push:
+    branches:
+      - main  # Change this to your default branch if it's not 'main'
+      - '**'  # This will trigger the workflow on any branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Extract commit SHA
+      id: vars
+      run: |
+        echo "::set-output name=sha::$(git rev-parse --short HEAD)"
+        echo "::set-output name=branch::$(echo ${GITHUB_REF#refs/heads/} | tr '_' '-')"
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: |
+          ${{ secrets.DOCKER_USERNAME }}/stuffwithjack:${{ steps.vars.outputs.sha }}
+
+    - name: Build and push Docker image
+      if: github.ref == 'refs/heads/main'
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: |
+          ${{ secrets.DOCKER_USERNAME }}/stuffwithjack:latest
+
+  deploy-review:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Extract commit SHA
+      id: vars
+      run: |
+        echo "::set-output name=sha::$(git rev-parse --short HEAD)"
+        echo "::set-output name=branch::$(echo ${GITHUB_REF#refs/heads/} | tr '_' '-')"
+
+    - name: Install Helm
+      run: |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+    - name: Configure kubectl
+      uses: azure/setup-kubectl@v1
+      with:
+        version: 'latest'
+        config-file: ${{ secrets.KUBECONFIG }}
+
+    - name: Deploy
+      uses: WyriHaximus/github-action-helm3@v3
+      with:
+        exec: |
+          helm upgrade --install stuffwithjack-${{ steps.vars.outputs.branch }} -n stuffwithjack --create-namespace ./stuffwithjack \
+            --set nameOverride=stuffwithjack-${{ steps.vars.outputs.branch }} \
+            --set image.repository=${{ secrets.DOCKER_USERNAME }}/stuffwithjack \
+            --set image.tag=${{ steps.vars.outputs.sha }} \
+            --set ingress.hosts[0].host=stuffwithjack-${{ steps.vars.outputs.branch }}.${{ secrets.DOMAIN }} \
+            --set ingress.hosts[0].paths[0].path=/ \
+            --set ingress.hosts[0].paths[0].pathType=ImplementationSpecific \
+            --set ingress.tls[0].secretName=stuffwithjack-${{ steps.vars.outputs.branch }}-tls \
+            --set ingress.tls[0].hosts[0]=stuffwithjack-${{ steps.vars.outputs.branch }}.${{ secrets.DOMAIN }} \
+            --set ingress.annotations."external-dns\.alpha\.kubernetes\.io\/hostname"=stuffwithjack-${{ steps.vars.outputs.branch }}.${{ secrets.DOMAIN }}
+        kubeconfig: '${{ secrets.KUBECONFIG }}'
+        overrule_existing_kubeconfig: "true"
+
+  deploy-production:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Extract commit SHA
+      id: vars
+      run: |
+        echo "::set-output name=sha::$(git rev-parse --short HEAD)"
+        echo "::set-output name=branch::$(echo ${GITHUB_REF#refs/heads/} | tr '_' '-')"
+   
+    - name: Install Helm
+      run: |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+    - name: Configure kubectl
+      uses: azure/setup-kubectl@v1
+      with:
+        version: 'latest'
+        config-file: ${{ secrets.KUBECONFIG }}
+
+    - name: Deploy
+      uses: WyriHaximus/github-action-helm3@v3
+      with:
+        exec: |
+          helm upgrade --install stuffwithjack -n stuffwithjack --create-namespace ./stuffwithjack \
+            --set image.repository=${{ secrets.DOCKER_USERNAME }}/stuffwithjack \
+            --set image.tag=${{ steps.vars.outputs.sha }} \
+            --set ingress.hosts[0].host=stuffwithjack.${{ secrets.DOMAIN }} \
+            --set ingress.hosts[0].paths[0].path=/ \
+            --set ingress.hosts[0].paths[0].pathType=ImplementationSpecific \
+            --set ingress.tls[0].secretName=stuffwithjack-tls \
+            --set ingress.tls[0].hosts[0]=stuffwithjack.${{ secrets.DOMAIN }} \
+            --set ingress.annotations."external-dns\.alpha\.kubernetes\.io\/hostname"=stuffwithjack.${{ secrets.DOMAIN }}
+            --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/target"=kube.${{ secrets.DOMAIN }}
+        kubeconfig: '${{ secrets.KUBECONFIG }}'
+        overrule_existing_kubeconfig: "true"

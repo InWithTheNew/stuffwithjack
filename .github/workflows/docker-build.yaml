@@ -60,6 +60,6 @@ jobs:
             --set ingress.hosts[0].host=stuffwithjack.exact.li \
             --set ingress.tls[0].secretName=stuffwithjack-tls \
             --set ingress.tls[0].hosts[0]=stuffwithjack.exact.li \
-            --set ingress.annotations."external-dns.alpha.kubernetes.io/hostname"="stuffwithjack-${{ steps.vars.outputs.branch }}.exact.li"
+            --set ingress.annotations."external-dns\.alpha\.kubernetes\.io\/hostname"=stuffwithjack-${{ steps.vars.outputs.branch }}.exact.li
         kubeconfig: '${{ secrets.KUBECONFIG }}'
         overrule_existing_kubeconfig: "true"

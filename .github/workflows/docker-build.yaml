@@ -1,0 +1,39 @@
+name: Build Docker Container
+
+on:
+  push:
+    branches:
+      - main  # Change this to your default branch if it's not 'main'
+      - '**'  # This will trigger the workflow on any branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Extract commit SHA
+      id: vars
+      run: echo "::set-output name=sha::$(git rev-parse --short HEAD)"
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: |
+          ${{ secrets.DOCKER_USERNAME }}/stuffwithjack:${{ steps.vars.outputs.sha }}
+          ${{ secrets.DOCKER_USERNAME }}/stuffwithjack:latest
+        # Only push the 'latest' tag if on the main branch
+        tag-with-latest: ${{ github.ref == 'refs/heads/main' }}

@@ -79,12 +79,12 @@ jobs:
             --set nameOverride=stuffwithjack-${{ steps.vars.outputs.branch }} \
             --set image.repository=${{ secrets.DOCKER_USERNAME }}/stuffwithjack \
             --set image.tag=${{ steps.vars.outputs.sha }} \
-            --set ingress.hosts[0].host=stuffwithjack-${{ steps.vars.outputs.branch }}.exact.li \
+            --set ingress.hosts[0].host=stuffwithjack-${{ steps.vars.outputs.branch }}.${{ secrets.DOMAIN }} \
             --set ingress.hosts[0].paths[0].path=/ \
             --set ingress.hosts[0].paths[0].pathType=ImplementationSpecific \
             --set ingress.tls[0].secretName=stuffwithjack-${{ steps.vars.outputs.branch }}-tls \
-            --set ingress.tls[0].hosts[0]=stuffwithjack-${{ steps.vars.outputs.branch }}.exact.li \
-            --set ingress.annotations."external-dns\.alpha\.kubernetes\.io\/hostname"=stuffwithjack-${{ steps.vars.outputs.branch }}.exact.li
+            --set ingress.tls[0].hosts[0]=stuffwithjack-${{ steps.vars.outputs.branch }}.${{ secrets.DOMAIN }} \
+            --set ingress.annotations."external-dns\.alpha\.kubernetes\.io\/hostname"=stuffwithjack-${{ steps.vars.outputs.branch }}.${{ secrets.DOMAIN }}
         kubeconfig: '${{ secrets.KUBECONFIG }}'
         overrule_existing_kubeconfig: "true"
 
@@ -120,11 +120,12 @@ jobs:
           helm upgrade --install stuffwithjack -n stuffwithjack --create-namespace ./stuffwithjack \
             --set image.repository=${{ secrets.DOCKER_USERNAME }}/stuffwithjack \
             --set image.tag=${{ steps.vars.outputs.sha }} \
-            --set ingress.hosts[0].host=stuffwithjack.exact.li \
+            --set ingress.hosts[0].host=stuffwithjack.${{ secrets.DOMAIN }} \
             --set ingress.hosts[0].paths[0].path=/ \
             --set ingress.hosts[0].paths[0].pathType=ImplementationSpecific \
             --set ingress.tls[0].secretName=stuffwithjack-tls \
-            --set ingress.tls[0].hosts[0]=stuffwithjack.exact.li \
-            --set ingress.annotations."external-dns\.alpha\.kubernetes\.io\/hostname"=stuffwithjack.exact.li
+            --set ingress.tls[0].hosts[0]=stuffwithjack.${{ secrets.DOMAIN }} \
+            --set ingress.annotations."external-dns\.alpha\.kubernetes\.io\/hostname"=stuffwithjack.${{ secrets.DOMAIN }}
+            --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/target"=kube.${{ secrets.DOMAIN }}
         kubeconfig: '${{ secrets.KUBECONFIG }}'
         overrule_existing_kubeconfig: "true"

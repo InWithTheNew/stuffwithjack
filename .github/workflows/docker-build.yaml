@@ -101,7 +101,7 @@ jobs:
       id: vars
       run: |
         echo "::set-output name=sha::$(git rev-parse --short HEAD)"
-        echo "::set-output name=branch::$(echo ${GITHUB_REF#refs/heads/} | tr '_' '-')"
+        echo "::set-output name=branch::$(echo ${GITHUB_REF#refs/heads/} | tr '_' '-' | tr '/' '-')"
    
     - name: Install Helm
       run: |

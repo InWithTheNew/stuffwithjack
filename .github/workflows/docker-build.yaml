@@ -36,9 +36,15 @@ jobs:
         push: true
         tags: |
           ${{ secrets.DOCKER_USERNAME }}/stuffwithjack:${{ steps.vars.outputs.sha }}
+
+    - name: Build and push Docker image
+      if: github.ref == 'refs/heads/main'
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: |
           ${{ secrets.DOCKER_USERNAME }}/stuffwithjack:latest
-        # Only push the 'latest' tag if on the main branch
-        tag-with-latest: ${{ github.ref == 'refs/heads/main' }}
 
   deploy-review:
     if: github.ref != 'refs/heads/main'

@@ -50,12 +50,16 @@ jobs:
         version: 'latest'
         config-file: ${{ secrets.KUBECONFIG }}
 
-    - name: Deploy with Helm
-      run: |
-        helm upgrade --install stuffwithjack -n stuffwithjack --create-namespace ./stuffwithjack \
-          --set image.repository=${{ secrets.DOCKER_USERNAME }}/stuffwithjack \
-          --set image.tag=${{ steps.vars.outputs.sha }}
-          --set ingress.hosts[0].host=stuffwithjack.exact.li
-          --set ingress.tls[0].secretName=stuffwithjack-tls
-          --set ingress.tls[0].hosts[0]=stuffwithjack.exact.li
-          --set ingress.annotations."external-dns.alpha.kubernetes.io/hostname"="stuffwithjack-${{ steps.vars.outputs.branch }}.exact.li"
+    - name: Deploy
+      uses: WyriHaximus/github-action-helm3@v3
+      with:
+        exec: |
+          helm upgrade --install stuffwithjack -n stuffwithjack --create-namespace ./stuffwithjack \
+            --set image.repository=${{ secrets.DOCKER_USERNAME }}/stuffwithjack \
+            --set image.tag=${{ steps.vars.outputs.sha }} \
+            --set ingress.hosts[0].host=stuffwithjack.exact.li \
+            --set ingress.tls[0].secretName=stuffwithjack-tls \
+            --set ingress.tls[0].hosts[0]=stuffwithjack.exact.li \
+            --set ingress.annotations."external-dns.alpha.kubernetes.io/hostname"="stuffwithjack-${{ steps.vars.outputs.branch }}.exact.li"
+        kubeconfig: '${{ secrets.KUBECONFIG }}'
+        overrule_existing_kubeconfig: "true"

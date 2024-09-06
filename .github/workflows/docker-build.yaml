@@ -1,4 +1,4 @@
-name: Build Docker Container
+name: Build and Deploy App
 
 on:
   push:
@@ -23,7 +23,7 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Extract commit SHA
+    - name: Extract commit SHA and branch name
       id: vars
       run: |
         echo "::set-output name=sha::$(git rev-parse --short HEAD)"
@@ -50,6 +50,31 @@ jobs:
         version: 'latest'
         config-file: ${{ secrets.KUBECONFIG }}
 
+    - name: Deploy with Helm
+      run: |
+        helm upgrade --install stuffwithjack -n stuffwithjack --create-namespace ./stuffwithjack \
+          --set image.repository=${{ secrets.DOCKER_USERNAME }}/stuffwithjack \
+          --set image.tag=${{ steps.vars.outputs.sha }} \
+          --set ingress.hosts[0].host=stuffwithjack.exact.li \
+          --set ingress.tls[0].secretName=stuffwithjack-tls \
+          --set ingress.tls[0].hosts[0]=stuffwithjack.exact.li \
+          --set ingress.annotations."external-dns.alpha.kubernetes.io/hostname"="stuffwithjack-${{ steps.vars.outputs.branch }}.exact.li"
+
+  deploy-review:
+    if: github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install Helm
+      run: |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+    - name: Configure kubectl
+      uses: azure/setup-kubectl@v1
+      with:
+        version: 'latest'
+        config-file: ${{ secrets.KUBECONFIG }}
+
     - name: Deploy
       uses: WyriHaximus/github-action-helm3@v3
       with:
@@ -57,11 +82,42 @@ jobs:
           helm upgrade --install stuffwithjack -n stuffwithjack --create-namespace ./stuffwithjack \
             --set image.repository=${{ secrets.DOCKER_USERNAME }}/stuffwithjack \
             --set image.tag=${{ steps.vars.outputs.sha }} \
-            --set ingress.hosts[0].host=stuffwithjack-${{ steps.vars.outputs.branch }}.exact.li \
+            --set ingress.hosts[0].host=stuffwithjack.exact.li \
             --set ingress.hosts[0].paths[0].path=/ \
             --set ingress.hosts[0].paths[0].pathType=ImplementationSpecific \
             --set ingress.tls[0].secretName=stuffwithjack-tls \
-            --set ingress.tls[0].hosts[0]=stuffwithjack-${{ steps.vars.outputs.branch }}.exact.li \
-            --set ingress.annotations."external-dns\.alpha\.kubernetes\.io\/hostname"=stuffwithjack-${{ steps.vars.outputs.branch }}.exact.li
+            --set ingress.tls[0].hosts[0]=stuffwithjack.exact.li \
+            --set ingress.annotations."external-dns.alpha.kubernetes.io/hostname"="stuffwithjack-${{ steps.vars.outputs.branch }}.exact.li"
+        kubeconfig: '${{ secrets.KUBECONFIG }}'
+        overrule_existing_kubeconfig: "true"
+
+  deploy-production:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Install Helm
+      run: |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+    - name: Configure kubectl
+      uses: azure/setup-kubectl@v1
+      with:
+        version: 'latest'
+        config-file: ${{ secrets.KUBECONFIG }}
+
+    - name: Deploy
+      uses: WyriHaximus/github-action-helm3@v3
+      with:
+        exec: |
+          helm upgrade --install stuffwithjack -n stuffwithjack --create-namespace ./stuffwithjack \
+            --set image.repository=${{ secrets.DOCKER_USERNAME }}/stuffwithjack \
+            --set image.tag=${{ steps.vars.outputs.sha }} \
+            --set ingress.hosts[0].host=stuffwithjack.exact.li \
+            --set ingress.hosts[0].paths[0].path=/ \
+            --set ingress.hosts[0].paths[0].pathType=ImplementationSpecific \
+            --set ingress.tls[0].secretName=stuffwithjack-tls \
+            --set ingress.tls[0].hosts[0]=stuffwithjack.exact.li \
+            --set ingress.annotations."external-dns.alpha.kubernetes.io/hostname"="stuffwithjack.exact.li"
         kubeconfig: '${{ secrets.KUBECONFIG }}'
         overrule_existing_kubeconfig: "true"

@@ -69,7 +69,7 @@ jobs:
       uses: WyriHaximus/github-action-helm3@v3
       with:
         exec: |
-          helm upgrade --install stuffwithjack -n stuffwithjack-${{ steps.vars.outputs.branch }} --create-namespace ./stuffwithjack \
+          helm upgrade --install stuffwithjack-${{ steps.vars.outputs.branch }} -n stuffwithjack --create-namespace ./stuffwithjack \
             --set nameOverride=stuffwithjack-${{ steps.vars.outputs.branch }} \
             --set image.repository=${{ secrets.DOCKER_USERNAME }}/stuffwithjack \
             --set image.tag=${{ steps.vars.outputs.sha }} \

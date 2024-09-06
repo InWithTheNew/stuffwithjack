@@ -1,1 +1,0 @@
-__all__ = ['Dog', 'Cat', 'Gerbil', 'Cow', 'Pig']

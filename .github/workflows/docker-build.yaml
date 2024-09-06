@@ -25,7 +25,9 @@ jobs:
 
     - name: Extract commit SHA
       id: vars
-      run: echo "::set-output name=sha::$(git rev-parse --short HEAD)"
+      run: |
+        echo "::set-output name=sha::$(git rev-parse --short HEAD)"
+        echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
@@ -37,3 +39,23 @@ jobs:
           ${{ secrets.DOCKER_USERNAME }}/stuffwithjack:latest
         # Only push the 'latest' tag if on the main branch
         tag-with-latest: ${{ github.ref == 'refs/heads/main' }}
+
+    - name: Install Helm
+      run: |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+    - name: Configure kubectl
+      uses: azure/setup-kubectl@v1
+      with:
+        version: 'latest'
+        config-file: ${{ secrets.KUBECONFIG }}
+
+    - name: Deploy with Helm
+      run: |
+        helm upgrade --install stuffwithjack -n stuffwithjack --create-namespace ./stuffwithjack \
+          --set image.repository=${{ secrets.DOCKER_USERNAME }}/stuffwithjack \
+          --set image.tag=${{ steps.vars.outputs.sha }}
+          --set ingress.hosts[0].host=stuffwithjack.exact.li
+          --set ingress.tls[0].secretName=stuffwithjack-tls
+          --set ingress.tls[0].hosts[0]=stuffwithjack.exact.li
+          --set ingress.annotations."external-dns.alpha.kubernetes.io/hostname"="stuffwithjack-${{ steps.vars.outputs.branch }}.exact.li"

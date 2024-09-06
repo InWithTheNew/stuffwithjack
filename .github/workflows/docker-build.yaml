@@ -27,7 +27,7 @@ jobs:
       id: vars
       run: |
         echo "::set-output name=sha::$(git rev-parse --short HEAD)"
-        echo "::set-output name=branch::$(echo ${GITHUB_REF#refs/heads/} | tr '_' '-')"
+        echo "::set-output name=branch::$(echo ${GITHUB_REF#refs/heads/} | tr '_' '-' | tr '/' '-')"
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
@@ -59,7 +59,7 @@ jobs:
       id: vars
       run: |
         echo "::set-output name=sha::$(git rev-parse --short HEAD)"
-        echo "::set-output name=branch::$(echo ${GITHUB_REF#refs/heads/} | tr '_' '-')"
+        echo "::set-output name=branch::$(echo ${GITHUB_REF#refs/heads/} | tr '_' '-' | tr '/' '-')"
 
     - name: Install Helm
       run: |
@@ -101,7 +101,7 @@ jobs:
       id: vars
       run: |
         echo "::set-output name=sha::$(git rev-parse --short HEAD)"
-        echo "::set-output name=branch::$(echo ${GITHUB_REF#refs/heads/} | tr '_' '-')"
+        echo "::set-output name=branch::$(echo ${GITHUB_REF#refs/heads/} | tr '_' '-' | tr '/' '-')"
    
     - name: Install Helm
       run: |
@@ -125,7 +125,7 @@ jobs:
             --set ingress.hosts[0].paths[0].pathType=ImplementationSpecific \
             --set ingress.tls[0].secretName=stuffwithjack-tls \
             --set ingress.tls[0].hosts[0]=stuffwithjack.${{ secrets.DOMAIN }} \
-            --set ingress.annotations."external-dns\.alpha\.kubernetes\.io\/hostname"=stuffwithjack.${{ secrets.DOMAIN }}
+            --set ingress.annotations."external-dns\.alpha\.kubernetes\.io\/hostname"=stuffwithjack.${{ secrets.DOMAIN }} \
             --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/target"=kube.${{ secrets.DOMAIN }}
         kubeconfig: '${{ secrets.KUBECONFIG }}'
         overrule_existing_kubeconfig: "true"

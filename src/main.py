@@ -2,11 +2,6 @@ from flask import Flask, render_template, request, jsonify
 import random
 
 import animals
-# from animals.dog import Dog
-# from animals.cat import Cat
-# from animals.gerbil import Gerbil
-# from animals.cow import Cow
-# from animals.pig import Pig
 
 app = Flask(__name__)
 
@@ -48,6 +43,11 @@ def get_animal():
 
 @app.route('/get_random_animal', methods=['GET'])
 def get_random_animal():
+    # Existing code...
+
+    swagger = Swagger(app)
+
+    # Existing code...
     animal_list = [animals.Dog('Rex'), animals.Cat('Whiskers'), animals.Gerbil('Gerry'), animals.Cow('Cody'), animals.Pig('Porky')]
     animal = random.choice(animal_list)
     

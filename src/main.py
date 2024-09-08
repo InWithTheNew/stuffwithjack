@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, jsonify
+from flasgger import Swagger
 import random
 
 import animals
 
 app = Flask(__name__)
+swagger = Swagger(app)
 
 @app.route('/')
 def home():
@@ -19,6 +21,35 @@ def home():
 
 @app.route('/get_animal', methods=['POST'])
 def get_animal():
+    """
+    Get an animal by type and name
+    ---
+    parameters:
+      - name: type
+        in: body
+        type: string
+        required: true
+        description: The type of the animal
+      - name: name
+        in: body
+        type: string
+        required: true
+        description: The name of the animal
+    responses:
+      200:
+        description: A successful response
+        schema:
+          id: Animal
+          properties:
+            name:
+              type: string
+              description: The name of the animal
+            speak:
+              type: string
+              description: The sound the animal makes
+      400:
+        description: Invalid input
+    """
     data = request.json
     animal_type = data.get('type')
     name = data.get('name')
@@ -31,6 +62,8 @@ def get_animal():
         animal = animals.Cow(name)
     elif animal_type.lower() == 'gerbil':
         animal = animals.Gerbil(name)
+    elif animal_type.lower() == 'pig':
+        animal = animals.Pig(name)  
     else:
         return jsonify({'error': 'Animal type not supported'}), 400
     
@@ -43,11 +76,25 @@ def get_animal():
 
 @app.route('/get_random_animal', methods=['GET'])
 def get_random_animal():
-    # Existing code...
-
-    swagger = Swagger(app)
-
-    # Existing code...
+    """
+    Get a random animal
+    ---
+    responses:
+      200:
+        description: A successful response
+        schema:
+          id: RandomAnimal
+          properties:
+            type:
+              type: string
+              description: The type of the animal
+            name:
+              type: string
+              description: The name of the animal
+            speak:
+              type: string
+              description: The sound the animal makes
+    """
     animal_list = [animals.Dog('Rex'), animals.Cat('Whiskers'), animals.Gerbil('Gerry'), animals.Cow('Cody'), animals.Pig('Porky')]
     animal = random.choice(animal_list)
     
@@ -59,6 +106,19 @@ def get_random_animal():
 
 @app.route('/health', methods=['GET'])
 def health():
+    """
+    Health check endpoint
+    ---
+    responses:
+      200:
+        description: A successful response
+        schema:
+          id: Health
+          properties:
+            status:
+              type: string
+              description: The health status
+    """
     return jsonify({'status': 'healthy'})
 
 if __name__ == '__main__':

@@ -9,7 +9,9 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    branch_name = '-' + os.getenv('BRANCH_NAME', '')
+    branch_name = ''
+    if os.getenv('BRANCH_NAME'):
+        branch_name = '-' + os.getenv('BRANCH_NAME', '')
     domain_name = os.getenv('DOMAIN_NAME', '')
     return render_template('index.html', branch_name=branch_name, domain_name=domain_name)
 

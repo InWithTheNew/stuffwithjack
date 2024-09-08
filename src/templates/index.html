@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Documentation</title>
+    <title>Index</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -50,16 +50,26 @@
 </head>
 <body>
     <div class="container">
-        <h1>API Documentation</h1>
-        <p>Welcome to the API documentation. Below is a list of available routes and their methods:</p>
-        <ul>
-            {% for route in routes %}
-                <li>
-                    <span class="route">{{ route.url }}</span>
-                    <span class="methods">({{ route.methods | join(', ') }})</span>
-                </li>
-            {% endfor %}
-        </ul>
+        <h1>Homepage</h1>
+        <p>
+            Hey Jack. If you've hit this, great news, you're starting to see the value in having APIs.
+            <br>
+            I assume you're testing, or trying to test, the functions in the app.
+            <br><br>
+            If you're trying to hit the get_random_animal function, you can do so by hitting the following endpoint:
+            <br><br>
+            <b>https://stuffwithjack{{ branch_name }}.{{ domain_name }}/get_random_animal</b>
+            <br><br>
+
+            If you're trying to hit the get_animal, it's a bit more as it's a POST request (go and learn!).
+            <br>
+            Use Postman to submit a post request to /get_animal with the following JSON body:
+            <br><br>
+            <b>{
+                "type": "dog",
+                "name": "Buster"
+            }</b>
+        </p>
     </div>
 </body>
 </html>

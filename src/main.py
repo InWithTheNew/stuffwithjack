@@ -19,7 +19,7 @@ def home():
             'methods': list(rule.methods),
             'url': rule.rule
         })
-    return render_template('index.html', routes=routes)
+    return render_template('web/index.html', routes=routes)
 
 
 @app.route('/get_animal', methods=['POST'])

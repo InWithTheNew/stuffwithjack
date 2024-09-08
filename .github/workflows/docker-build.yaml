@@ -132,7 +132,7 @@ jobs:
             --set ingress.tls[0].hosts[0]=stuffwithjack.${{ secrets.DOMAIN }} \
             --set ingress.annotations."external-dns\.alpha\.kubernetes\.io\/hostname"=stuffwithjack.${{ secrets.DOMAIN }} \
             --set ingress.annotations."external-dns\.alpha\.kubernetes\.io/target"=kube.${{ secrets.DOMAIN }} \
-            --set env[1].name=DOMAIN_NAME \
-            --set env[1].value=${{ secrets.DOMAIN }}
+            --set env[0].name=DOMAIN_NAME \
+            --set env[0].value=${{ secrets.DOMAIN }}
         kubeconfig: '${{ secrets.KUBECONFIG }}'
         overrule_existing_kubeconfig: "true"

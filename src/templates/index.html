@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        
+        p {
+            color: #666;
+            line-height: 1.5;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 10px 0;
+        }
+
+        .route {
+            font-weight: bold;
+        }
+
+        .methods {
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Homepage</h1>
+        <p>
+            Hey Jack. If you've hit this, great news, you're starting to see the value in having APIs.
+            <br>
+            I assume you're testing, or trying to test, the functions in the app.
+            <br><br>
+            If you're trying to hit the get_random_animal function, you can do so by hitting the following endpoint:
+            <br><br>
+            <b>https://stuffwithjack{{ branch_name }}.{{ domain_name }}/get_random_animal</b>
+            <br><br>
+
+            If you're trying to hit the get_animal, it's a bit more as it's a POST request (go and learn!).
+            <br><br>
+            Use Postman to submit a post request to 
+            <br><br>
+            <b>https://stuffwithjack{{ branch_name }}.{{ domain_name }}/get_animal</b>
+            <br><br> 
+            with the following JSON body:
+            <br><br>
+            <b>{
+                "type": "dog",
+                "name": "Buster"
+            }</b>
+        </p>
+    </div>
+</body>
+</html>

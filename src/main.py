@@ -1,14 +1,19 @@
-from flask import Flask, request, jsonify
+from flask import Flask, render_template, request, jsonify
+# from flasgger import Swagger
 import random
+import os
 
 import animals
-# from animals.dog import Dog
-# from animals.cat import Cat
-# from animals.gerbil import Gerbil
-# from animals.cow import Cow
-# from animals.pig import Pig
 
 app = Flask(__name__)
+
+@app.route('/')
+def home():
+    branch_name = ''
+    if os.getenv('BRANCH_NAME'):
+        branch_name = '-' + os.getenv('BRANCH_NAME', '')
+    domain_name = os.getenv('DOMAIN_NAME', '')
+    return render_template('index.html', branch_name=branch_name, domain_name=domain_name)
 
 @app.route('/get_animal', methods=['POST'])
 def get_animal():
@@ -24,6 +29,8 @@ def get_animal():
         animal = animals.Cow(name)
     elif animal_type.lower() == 'gerbil':
         animal = animals.Gerbil(name)
+    elif animal_type.lower() == 'pig':
+        animal = animals.Pig(name)  
     else:
         return jsonify({'error': 'Animal type not supported'}), 400
     
@@ -31,8 +38,6 @@ def get_animal():
         'name': animal.name,
         'speak': animal.speak()
     })
-
-# Existing imports and app setup...
 
 @app.route('/get_random_animal', methods=['GET'])
 def get_random_animal():

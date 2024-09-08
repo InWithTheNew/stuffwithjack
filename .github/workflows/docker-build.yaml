@@ -84,7 +84,12 @@ jobs:
             --set ingress.hosts[0].paths[0].pathType=ImplementationSpecific \
             --set ingress.tls[0].secretName=stuffwithjack-${{ steps.vars.outputs.branch }}-tls \
             --set ingress.tls[0].hosts[0]=stuffwithjack-${{ steps.vars.outputs.branch }}.${{ secrets.DOMAIN }} \
-            --set ingress.annotations."external-dns\.alpha\.kubernetes\.io\/hostname"=stuffwithjack-${{ steps.vars.outputs.branch }}.${{ secrets.DOMAIN }}
+            --set ingress.annotations."external-dns\.alpha\.kubernetes\.io\/target"=kube.${{ secrets.DOMAIN }} \
+            --set ingress.annotations."external-dns\.alpha\.kubernetes\.io\/hostname"=stuffwithjack-${{ steps.vars.outputs.branch }}.${{ secrets.DOMAIN }} \
+            --set env[0].name=BRANCH_NAME \
+            --set env[0].value=${{ steps.vars.outputs.branch }} \
+            --set env[1].name=DOMAIN_NAME \
+            --set env[1].value=${{ secrets.DOMAIN }}
         kubeconfig: '${{ secrets.KUBECONFIG }}'
         overrule_existing_kubeconfig: "true"
 

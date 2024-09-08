@@ -11,7 +11,7 @@ app = Flask(__name__)
 def home():
     branch_name = '-' + os.getenv('BRANCH_NAME', '')
     domain_name = os.getenv('DOMAIN_NAME', '')
-    return render_template('index.html')
+    return render_template('index.html', branch_name=branch_name, domain_name=domain_name)
 
 @app.route('/get_animal', methods=['POST'])
 def get_animal():

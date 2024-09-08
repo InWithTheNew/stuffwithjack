@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, render_template, request, jsonify
 import random
 
 import animals
@@ -9,6 +9,18 @@ import animals
 # from animals.pig import Pig
 
 app = Flask(__name__)
+
+@app.route('/')
+def home():
+    routes = []
+    for rule in app.url_map.iter_rules():
+        routes.append({
+            'endpoint': rule.endpoint,
+            'methods': list(rule.methods),
+            'url': rule.rule
+        })
+    return render_template('index.html', routes=routes)
+
 
 @app.route('/get_animal', methods=['POST'])
 def get_animal():
